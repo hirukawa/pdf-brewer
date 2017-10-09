@@ -1,0 +1,4 @@
+#pdf-page-number:disabled, #pdf-page-number .label {
+	-fx-opacity: 1.0;
+	-fx-text-fill: #666666;
+}

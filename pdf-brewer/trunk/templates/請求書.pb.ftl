@@ -1,3 +1,12 @@
+<#assign 消費税率 = 0.08>
+<#assign 小計 = 0>
+<#list 明細 as 行>
+	<#if 行.単価?replace(",", "")?length gt 1>
+		<#assign 小計 += 行.単価?replace(",", "")?number * 行.数量?replace(",", "")?number>
+	</#if>
+</#list>
+<#assign 消費税 = (小計 * 消費税率)?floor>
+
 \media A4
 \box 12 12 -12 -12
 
@@ -25,7 +34,7 @@
 		\line-height 2.5
 		\text ${請求先.郵便番号}\n
 		\line-height 2.0
-		\text ${請求先.住所?replace('\n', '\\n')}
+		\text ${請求先.住所?replace("\n", "\\n")}
 		
 	\box 11 55 0 0
 		\align left top
@@ -48,7 +57,7 @@
 		\line-height 3.2
 		\text ${請求元.郵便番号}\n
 		\line-height 1.8
-		\text ${請求元.住所?replace('\n', '\\n')}\n
+		\text ${請求元.住所?replace("\n", "\\n")}\n
 		\font sans-serif 9
 		\text 電話　 
 		\font serif 11
@@ -63,7 +72,7 @@
 		\font sans-serif 12.5
 		\text 請求金額　
 		\font serif bold 15
-		\text ${合計}
+		\text ${小計 + 消費税}
 		\font sans-serif 12.5
 		\text  円
 		\box 65 0 0 0
@@ -90,7 +99,7 @@
 	
 	\line-style thin dotted
 	\box 0 108 -0 11
-		<#if 明細?size gte 1>
+		<#if 明細?size gte 1 && 明細[0].単価?has_content>
 		\box 1 1.5 120 -1.5
 			\align left top
 			\font serif 10
@@ -101,20 +110,20 @@
 		\box 127 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[0].単価}
+			\text ${明細[0].単価?replace(",", "")?number}
 		\box 148 0 16 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[0].数量}
+			\text ${明細[0].数量?replace(",", "")?number}
 		\box 164 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[0].金額}
+			\text ${明細[0].単価?replace(",", "")?number * 明細[0].数量?replace(",", "")?number}
 		</#if>
 	\line 0 -0 -0 -0
 	
 	\box 0 119 -0 11
-		<#if 明細?size gte 2 && 明細[1].金額?has_content>
+		<#if 明細?size gte 2 && 明細[1].単価?has_content>
 		\box 1 1.5 120 -1.5
 			\align left top
 			\font serif 10
@@ -125,20 +134,20 @@
 		\box 127 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[1].単価}
+			\text ${明細[1].単価?replace(",", "")?number}
 		\box 148 0 16 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[1].数量}
+			\text ${明細[1].数量?replace(",", "")?number}
 		\box 164 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[1].金額}
+			\text ${明細[1].単価?replace(",", "")?number * 明細[1].数量?replace(",", "")?number}
 		</#if>
 	\line 0 -0 -0 -0
 	
 	\box 0 130 -0 11
-		<#if 明細?size gte 3 && 明細[2].金額?has_content>
+		<#if 明細?size gte 3 && 明細[2].単価?has_content>
 		\box 1 1.5 120 -1.5
 			\align left top
 			\font serif 10
@@ -149,20 +158,20 @@
 		\box 127 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[2].単価}
+			\text ${明細[2].単価?replace(",", "")?number}
 		\box 148 0 16 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[2].数量}
+			\text ${明細[2].数量?replace(",", "")?number}
 		\box 164 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[2].金額}
+			\text ${明細[2].単価?replace(",", "")?number * 明細[2].数量?replace(",", "")?number}
 		</#if>
 	\line 0 -0 -0 -0
 	
 	\box 0 141 -0 11
-		<#if 明細?size gte 4 && 明細[3].金額?has_content>
+		<#if 明細?size gte 4 && 明細[3].単価?has_content>
 		\box 1 1.5 120 -1.5
 			\align left top
 			\font serif 10
@@ -173,15 +182,15 @@
 		\box 127 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[3].単価}
+			\text ${明細[3].単価?replace(",", "")?number}
 		\box 148 0 16 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[3].数量}
+			\text ${明細[3].数量?replace(",", "")?number}
 		\box 164 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
-			\text ${明細[3].金額}
+			\text ${明細[3].単価?replace(",", "")?number * 明細[3].数量?replace(",", "")?number}
 		</#if>
 	\line 0 -0 -0 -0
 	
@@ -221,7 +230,7 @@
 		\box 0 0 -2 -2
 		\align right bottom
 		\font serif bold 15
-		\text ${合計}
+		\text ${小計 + 消費税}
 		\font sans-serif 12.5
 		\text  円
 	\line-style thick solid
@@ -238,7 +247,7 @@
 		\font serif 12.5
 		\line-height 2.1
 		\text ${振込先?replace('\n', '\\n')}
-	\line-style thin solid	
+	\line-style thin solid
 	\rect 0 0 0 0
 	
 	\box 0 230 -0 5
@@ -251,6 +260,6 @@
 		\font serif 12.5
 		\line-height 2.1
 		\text ${備考?replace('\n', '\\n')}
-	\line-style thin solid	
+	\line-style thin solid
 	\rect 0 0 0 0
 	

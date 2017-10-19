@@ -43,7 +43,6 @@ task exewrap_x86(type: Exec, dependsOn: 'jar') {
 	setDescription('Assembles the executable.')
 	executable "${projectDir}/exewrap.exe"
 	args "-A", "x86",
-		"-g",
 		"-t", "1.8.0.40",
 		"-L", "libs",
 		"-e", "SHARED",

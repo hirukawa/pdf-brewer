@@ -44,6 +44,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.stage.FileChooser.ExtensionFilter;
 import net.osdn.pdf_brewer.BrewerData;
 import net.osdn.pdf_brewer.PdfBrewer;
@@ -170,6 +171,12 @@ public class PdfBrewerMain extends Application {
 			pdfPane.setPrefSize(PREF_PDF_PANE_WIDTH / 2, PREF_PDF_PANE_HEIGHT / 2);
 		}
 		
+		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			public void handle(WindowEvent event) {
+				stage_onCloseRequest(event);
+			}
+		});
+
 		stage.show();
 		
 		SplashScreen splash = SplashScreen.getSplashScreen();
@@ -466,6 +473,13 @@ public class PdfBrewerMain extends Application {
 		return menuBar;
 	}
 	
+	protected void stage_onCloseRequest(WindowEvent event) {
+		if(document != null) {
+			try { document.close(); } catch(Exception e) {}
+			document = null;
+		}
+	}
+	
 	protected void onDragOver(DragEvent event) {
 		if(event.getDragboard().hasFiles()) {
 			event.acceptTransferModes(TransferMode.COPY);
@@ -663,6 +677,10 @@ public class PdfBrewerMain extends Application {
 					@Override
 					public void run() {
 						try {
+							if(document != null) {
+								try { document.close(); } catch(Exception e) {}
+								document = null;
+							}
 							document = get();
 							pdfPane.setDocument(document);
 							pdfPane.setPage(0);

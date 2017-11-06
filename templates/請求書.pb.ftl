@@ -100,7 +100,7 @@
 	\line-style thin dotted
 	\box 0 108 -0 11
 		<#if 明細?size gte 1 && 明細[0].単価?has_content>
-		\box 1 1.5 120 -1.5
+		\box 1 1.5 126 -1.5
 			\align left top
 			\font serif 10
 			\text ${明細[0].上段}
@@ -124,7 +124,7 @@
 	
 	\box 0 119 -0 11
 		<#if 明細?size gte 2 && 明細[1].単価?has_content>
-		\box 1 1.5 120 -1.5
+		\box 1 1.5 126 -1.5
 			\align left top
 			\font serif 10
 			\text ${明細[1].上段}
@@ -148,7 +148,7 @@
 	
 	\box 0 130 -0 11
 		<#if 明細?size gte 3 && 明細[2].単価?has_content>
-		\box 1 1.5 120 -1.5
+		\box 1 1.5 126 -1.5
 			\align left top
 			\font serif 10
 			\text ${明細[2].上段}
@@ -172,7 +172,7 @@
 	
 	\box 0 141 -0 11
 		<#if 明細?size gte 4 && 明細[3].単価?has_content>
-		\box 1 1.5 120 -1.5
+		\box 1 1.5 126 -1.5
 			\align left top
 			\font serif 10
 			\text ${明細[3].上段}

@@ -500,9 +500,9 @@ public class PdfBrewerMain extends Application {
 				if(i >= 0) {
 					ext = ext.substring(i);
 				}
-				if(ext.equals(".yml") || ext.equals(".yaml")) {
+				if(ext.equals(".yml") || ext.equals(".yaml") || ext.equals(".pb")) {
 					try {
-						yaml_open(file);
+						data_open(file);
 						stage.toFront();
 					} catch(Exception e) {
 						e.printStackTrace();
@@ -519,6 +519,7 @@ public class PdfBrewerMain extends Application {
 		FileChooser fc = new FileChooser();
 		fc.setTitle("開く");
 		fc.getExtensionFilters().add(new ExtensionFilter("YAML", "*.yml", "*.yaml"));
+		fc.getExtensionFilters().add(new ExtensionFilter("PDF Brewer", "*.pb"));
 		String s = preferences.get("lastOpenDirectory", null);
 		if(s != null) {
 			File dir = new File(s);
@@ -533,8 +534,8 @@ public class PdfBrewerMain extends Application {
 			if(i >= 0) {
 				ext = ext.substring(i);
 			}
-			if(ext.equals(".yml") || ext.equals(".yaml")) {
-				yaml_open(file);
+			if(ext.equals(".yml") || ext.equals(".yaml") || ext.equals(".pb")) {
+				data_open(file);
 			}
 			preferences.put("lastOpenDirectory", file.getParentFile().getAbsolutePath());
 		}
@@ -583,7 +584,21 @@ public class PdfBrewerMain extends Application {
 		Platform.exit();
 	}
 
-	protected void yaml_open(File file) throws Exception {
+	protected void data_open(File file) throws Exception {
+		pdfPane.getSpinnerImageView().setVisible(true);
+		stage.setTitle(APP_WINDOW_TITLE);
+		menuFileSave.setDisable(true);
+		if(task != null) {
+			task.cancel(false);
+		}
+		input = file;
+		task = new BrewerTask(new BrewerCallable(input));
+		document = null;
+		pdfPane.setDocument(document);
+		executor.execute(task);
+	}
+	
+	protected void pb_open(File file) throws Exception {
 		pdfPane.getSpinnerImageView().setVisible(true);
 		stage.setTitle(APP_WINDOW_TITLE);
 		menuFileSave.setDisable(true);
@@ -598,15 +613,46 @@ public class PdfBrewerMain extends Application {
 	}
 	
 	protected void pdf_moveFirstPage() throws Exception {
+		PDDocument document = pdfPane.getDocument();
+		int pageIndex = 0;
+		if(document != null) {
+			pdfPane.setPage(pageIndex);
+		}
+		updatePagerButtons(document, pageIndex);
 	}
 	
 	protected void pdf_movePreviousPage() throws Exception {
+		PDDocument document = pdfPane.getDocument();
+		int pageIndex = -1;
+		if(document != null) {
+			pageIndex = pdfPane.getPageIndex();
+			if(pageIndex > 0) {
+				pdfPane.setPage(--pageIndex);
+			}
+		}
+		updatePagerButtons(document, pageIndex);
 	}
 	
 	protected void pdf_moveNextPage() throws Exception {
+		PDDocument document = pdfPane.getDocument();
+		int pageIndex = -1;
+		if(document != null) {
+			pageIndex = pdfPane.getPageIndex();
+			if(pageIndex + 1 < document.getNumberOfPages()) {
+				pdfPane.setPage(++pageIndex);
+			}
+		}
+		updatePagerButtons(document, pageIndex);
 	}
 	
 	protected void pdf_moveLastPage() throws Exception {
+		PDDocument document = pdfPane.getDocument();
+		int pageIndex = -1;
+		if(document != null) {
+			pageIndex = document.getNumberOfPages() - 1;
+			pdfPane.setPage(pageIndex);
+		}
+		updatePagerButtons(document, pageIndex);
 	}
 	
 	protected void pdf_mouseEntered(MouseEvent event) throws Exception {

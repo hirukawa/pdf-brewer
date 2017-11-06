@@ -28,6 +28,7 @@ import net.osdn.pdf_brewer.instruction.Instruction;
 import net.osdn.pdf_brewer.instruction.Line;
 import net.osdn.pdf_brewer.instruction.LineStyle;
 import net.osdn.pdf_brewer.instruction.Media;
+import net.osdn.pdf_brewer.instruction.NewPage;
 import net.osdn.pdf_brewer.instruction.Rect;
 import net.osdn.pdf_brewer.instruction.text.Font;
 import net.osdn.pdf_brewer.instruction.text.LineHeight;
@@ -83,6 +84,8 @@ public class BrewerData {
 							instructions.add(new Line(indent, tokens));
 						} else if(first.equals("line-style")) {
 							instructions.add(new LineStyle(indent, tokens));
+						} else if(first.equals("new-page")) {
+							instructions.add(new NewPage(indent, tokens));
 						} else if(first.equals("rect")) {
 							instructions.add(new Rect(indent, tokens));
 						} else if(first.equals("font")) {

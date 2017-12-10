@@ -36,12 +36,14 @@
 		\line-height 2.0
 		\text ${請求先.住所?replace("\n", "\\n")}
 		
+	<#if 請求先.担当者?has_content>
 	\box 11 55 0 0
 		\align left top
 		\font sans-serif 11
 		\text 担当　
 		\font serif 13
 		\text ${請求先.担当者}
+	</#if>
 		
 	\box 0 70 0 0
 		\align left top

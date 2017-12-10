@@ -7,6 +7,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.AbstractMap;
@@ -44,10 +45,6 @@ public class BrewerData {
 	private PDRectangle mediaBox;
 	private List<Instruction> instructions = new ArrayList<Instruction>();
 
-	public BrewerData(String path) throws IOException, TemplateException {
-		this(new File(path));
-	}
-	
 	public BrewerData(File file) throws IOException, TemplateException {
 		List<String> lines;
 		
@@ -60,6 +57,26 @@ public class BrewerData {
 			throw new IllegalArgumentException();
 		}
 		
+		initialize(lines);
+	}
+
+	public BrewerData(String pbData) throws IOException {
+		List<String> lines = new ArrayList<String>();
+		BufferedReader r = new BufferedReader(new StringReader(pbData));
+		String line;
+		while((line = r.readLine()) != null) {
+			lines.add(line);
+		}
+		r.close();
+		
+		initialize(lines);
+	}
+	
+	public BrewerData(List<String> lines) throws IOException {
+		initialize(lines);
+	}
+	
+	private void initialize(List<String> lines) throws IOException {
 		for(String line : lines) {
 			Entry<Integer, List<Object>> result = parse(line);
 			int indent = result.getKey();

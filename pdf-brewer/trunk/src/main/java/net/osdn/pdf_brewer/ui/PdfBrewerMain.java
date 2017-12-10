@@ -332,6 +332,17 @@ public class PdfBrewerMain extends Application {
 				}
 			}
 		});
+		scene.getAccelerators().put(new KeyCodeCombination(KeyCode.F5), new Runnable() {
+			@Override
+			public void run() {
+				try {
+					data_reopen();
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
 		
 		String pkg = PdfBrewerMain.class.getPackage().getName();
 		URL url = PdfBrewerMain.class.getResource("/" + pkg.replace('.', '/') + "/stylesheet.css");
@@ -598,18 +609,10 @@ public class PdfBrewerMain extends Application {
 		executor.execute(task);
 	}
 	
-	protected void pb_open(File file) throws Exception {
-		pdfPane.getSpinnerImageView().setVisible(true);
-		stage.setTitle(APP_WINDOW_TITLE);
-		menuFileSave.setDisable(true);
-		if(task != null) {
-			task.cancel(false);
+	protected void data_reopen() throws Exception {
+		if(input != null && !input.isDirectory() && input.exists()) {
+			data_open(input);
 		}
-		input = file;
-		task = new BrewerTask(new BrewerCallable(input));
-		document = null;
-		pdfPane.setDocument(document);
-		executor.execute(task);
 	}
 	
 	protected void pdf_moveFirstPage() throws Exception {

@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.AbstractMap;
@@ -19,9 +19,6 @@ import java.util.Scanner;
 
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import net.osdn.pdf_brewer.instruction.Align;
 import net.osdn.pdf_brewer.instruction.Box;
 import net.osdn.pdf_brewer.instruction.Image;
@@ -35,32 +32,32 @@ import net.osdn.pdf_brewer.instruction.text.Font;
 import net.osdn.pdf_brewer.instruction.text.LineHeight;
 import net.osdn.pdf_brewer.instruction.text.Text;
 import net.osdn.pdf_brewer.instruction.text.TextAlign;
-import net.osdn.util.yaml.CharsetDetector;
-import net.osdn.util.yaml.Yaml;
+import net.osdn.util.io.AutoDetectReader;
 
 public class BrewerData {
 
+	private FontLoader fontLoader;
 	private String title;
 	private String author;
 	private PDRectangle mediaBox;
 	private List<Instruction> instructions = new ArrayList<Instruction>();
 
-	public BrewerData(File file) throws IOException, TemplateException {
-		List<String> lines;
-		
-		String s = file.getName().toLowerCase();
-		if(s.endsWith(".pb")) {
-			lines = CharsetDetector.readAllLines(file);
-		} else if(s.endsWith("yml")) {
-			lines = processYaml(file);
-		} else {
+	public BrewerData(Path path, FontLoader fontLoader) throws IOException {
+		if(!Files.exists(path) || Files.isDirectory(path)) {
+			throw new IllegalArgumentException();
+		}
+		String s = path.getFileName().toString().toLowerCase();
+		if(!s.endsWith(".pb")) {
 			throw new IllegalArgumentException();
 		}
 		
+		List<String> lines = AutoDetectReader.readAllLines(path);
+		
+		this.fontLoader = fontLoader;
 		initialize(lines);
 	}
 
-	public BrewerData(String pbData) throws IOException {
+	public BrewerData(String pbData, FontLoader fontLoader) throws IOException {
 		List<String> lines = new ArrayList<String>();
 		BufferedReader r = new BufferedReader(new StringReader(pbData));
 		String line;
@@ -69,10 +66,12 @@ public class BrewerData {
 		}
 		r.close();
 		
+		this.fontLoader = fontLoader;
 		initialize(lines);
 	}
 	
-	public BrewerData(List<String> lines) throws IOException {
+	public BrewerData(List<String> lines, FontLoader fontLoader) throws IOException {
+		this.fontLoader = fontLoader;
 		initialize(lines);
 	}
 	
@@ -106,7 +105,7 @@ public class BrewerData {
 						} else if(first.equals("rect")) {
 							instructions.add(new Rect(indent, tokens));
 						} else if(first.equals("font")) {
-							instructions.add(new Font(indent, tokens));
+							instructions.add(new Font(fontLoader, indent, tokens));
 						} else if(first.equals("line-height")) {
 							instructions.add(new LineHeight(indent, tokens));
 						} else if(first.equals("text")) {
@@ -238,13 +237,16 @@ public class BrewerData {
 		}
 	}
 	
-	public List<String> processYaml(File file) throws IOException, TemplateException {
+	/*
+	public List<String> processYaml(Path path) throws IOException, TemplateException {
 		List<String> lines = new ArrayList<String>();
 		
 		File appDir = getApplicationDirectory(BrewerData.class);
 		Configuration freeMarker = new Configuration(Configuration.VERSION_2_3_26);
 		freeMarker.setDefaultEncoding("UTF-8");
 		freeMarker.setDirectoryForTemplateLoading(new File(appDir, "templates"));
+		
+		A
 		
 		Yaml yml = new Yaml(file);
 		Object obj;
@@ -288,4 +290,5 @@ public class BrewerData {
 		
 		return lines;
 	}
+	*/
 }

@@ -21,18 +21,13 @@ import org.apache.fontbox.ttf.TrueTypeCollection;
 import org.apache.fontbox.ttf.TrueTypeCollection.TrueTypeFontProcessor;
 import org.apache.fontbox.ttf.TrueTypeFont;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.win32.Shell32;
-import com.sun.jna.platform.win32.ShlObj;
-import com.sun.jna.platform.win32.WinDef;
-
 public class FontLoader {
 
-	private static Map<String, TrueTypeFont> fonts = new HashMap<String, TrueTypeFont>();
-	private static Map<TrueTypeFont, File> files = new HashMap<TrueTypeFont, File>();
+	private Map<String, TrueTypeFont> fonts = new HashMap<String, TrueTypeFont>();
+	private Map<TrueTypeFont, File> files = new HashMap<TrueTypeFont, File>();
 	
-	static {
-		load(getDefaultFontsDir());
+	public FontLoader(File fontDir) {
+		load(fontDir);
 		
 		TrueTypeFont serif;
 		TrueTypeFont serifBold;
@@ -58,7 +53,7 @@ public class FontLoader {
 		}
 	}
 	
-	public static List<TrueTypeFont> listFonts() {
+	public List<TrueTypeFont> listFonts() {
 		List<TrueTypeFont> list = new ArrayList<TrueTypeFont>(fonts.values());
 		Collections.sort(list, new Comparator<TrueTypeFont>() {
 			@Override
@@ -73,7 +68,7 @@ public class FontLoader {
 		return list;
 	}
 	
-	public static TrueTypeFont get(String name) {
+	public TrueTypeFont get(String name) {
 		TrueTypeFont ttf = fonts.get(normalize(name));
 		if(ttf != null) {
 			return ttf;
@@ -92,19 +87,11 @@ public class FontLoader {
 		return null;
 	}
 	
-	public static File getFile(TrueTypeFont ttf) throws IOException {
+	public File getFile(TrueTypeFont ttf) throws IOException {
 		return files.get(ttf);
 	}
 	
-	public static File getDefaultFontsDir() {
-		char[] pszPath = new char[WinDef.MAX_PATH];
-		Shell32.INSTANCE.SHGetFolderPath(null, ShlObj.CSIDL_FONTS, null, ShlObj.SHGFP_TYPE_CURRENT, pszPath);
-		String pathname = Native.toString(pszPath);
-		File fontsDir = new File(pathname);
-		return fontsDir;
-	}
-	
-	public static void load(File dir) {
+	public void load(File dir) {
 		TTFParser parser = new TTFParser();
 		File[] ttfFiles = dir.listFiles(new FilenameFilter() {
 			@Override
@@ -148,11 +135,11 @@ public class FontLoader {
 		}
 	}
 	
-	public static void register(TrueTypeFont ttf) throws IOException {
+	public void register(TrueTypeFont ttf) throws IOException {
 		register(null, ttf);
 	}
 	
-	public static void register(String name, TrueTypeFont ttf) throws IOException {
+	public void register(String name, TrueTypeFont ttf) throws IOException {
 		if(name != null) {
 			fonts.put(normalize(name), ttf);
 			return;
@@ -217,7 +204,7 @@ public class FontLoader {
 		}
 	}
 	
-	private static String normalize(String name) {
+	private String normalize(String name) {
 		String s = name.replace('\t', '-').replace('\u3000', '-').replace(' ', '-').toLowerCase();
 		while(s.contains("--")) {
 			s = s.replace("--", "-");

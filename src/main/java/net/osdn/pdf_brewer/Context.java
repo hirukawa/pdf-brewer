@@ -1,19 +1,14 @@
 package net.osdn.pdf_brewer;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.fontbox.ttf.TrueTypeFont;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.font.PDFont;
 
 import net.osdn.pdf_brewer.instruction.Instruction;
 import net.osdn.pdf_brewer.instruction.LineStyle;
 
 public class Context {
-	private static Map<String, PDFont> fonts = new HashMap<String, PDFont>();
-
 	private Context parent;
 	private int indent;
 	
@@ -22,6 +17,7 @@ public class Context {
 	private double right;
 	private double bottom;
 	
+	private FontLoader fontLoader;
 	private String fontName;
 	private float fontSize;
 	private float lineHeight; //行の高さ倍率
@@ -34,7 +30,7 @@ public class Context {
 	private Horizontal hAlign;
 	private Vertical vAlign;
 	
-	public Context(PDRectangle mediaBox) {
+	public Context(FontLoader loader, PDRectangle mediaBox) {
 		this.parent = null;
 		this.indent = -1;
 		
@@ -43,6 +39,7 @@ public class Context {
 		top = 0;
 		bottom = Instruction.pt2mm(mediaBox.getHeight());
 		
+		fontLoader = loader;
 		fontName = "serif";
 		fontSize = 14.0f;
 		lineHeight = 1.8f;
@@ -65,6 +62,7 @@ public class Context {
 		top = parent.getTop();
 		bottom = parent.getBottom();
 		
+		fontLoader = parent.getFontLoader();
 		fontName = parent.getFontName();
 		fontSize = parent.getFontSize();
 		lineHeight = parent.getLineHeight();
@@ -125,9 +123,13 @@ public class Context {
 		this.vAlign = vAlign;
 	}
 	
+	public FontLoader getFontLoader() {
+		return fontLoader;
+	}
+	
 	public void setFont(String fontName, float fontSize) throws IOException {
 		if(fontName != null) {
-			TrueTypeFont ttf = FontLoader.get(fontName);
+			TrueTypeFont ttf = getFontLoader().get(fontName);
 			if(ttf != null) {
 				this.fontName = ttf.getName();
 			}
@@ -142,7 +144,7 @@ public class Context {
 	}
 	
 	public void setFontName(String fontName) throws IOException {
-		TrueTypeFont ttf = FontLoader.get(fontName);
+		TrueTypeFont ttf = getFontLoader().get(fontName);
 		if(ttf != null) {
 			this.fontName = ttf.getName();
 		}

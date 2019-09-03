@@ -12,7 +12,7 @@ public class Font extends TextBufferingInstruction {
 	private String fontName;
 	private float fontSize = Float.NaN;
 	
-	public Font(int indent, List<Object> params) throws IOException {
+	public Font(FontLoader fontLoader, int indent, List<Object> params) throws IOException {
 		super(indent, params);
 		
 		StringBuilder sb = new StringBuilder();
@@ -27,7 +27,7 @@ public class Font extends TextBufferingInstruction {
 		}
 		if(sb.length() >= 2) {
 			String name = sb.substring(1);
-			TrueTypeFont ttf = FontLoader.get(name);
+			TrueTypeFont ttf = fontLoader.get(name);
 			if(ttf != null) {
 				fontName = ttf.getName();
 			}

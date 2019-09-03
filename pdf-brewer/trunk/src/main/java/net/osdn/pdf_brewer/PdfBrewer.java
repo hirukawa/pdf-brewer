@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.Calendar;
 import java.util.Deque;
@@ -66,24 +68,41 @@ public class PdfBrewer {
 		return title + " " + version;
 	}
 	
+	public static Path getDefaultFontDir() {
+		String windir = System.getenv("windir");
+		if(windir != null) {
+			return Paths.get(windir, "Fonts");
+		}
+		return null;
+	}
+	
 	private String producer;
 	private String creator;
 	private PDRectangle mediaBox;
 	private PDDocument document;
 	private PDPage page;
 	private PDPageContentStream stream;
+	private FontLoader fontLoader;
 	private Map<String, PDFont> fonts = new HashMap<String, PDFont>();
 	private Set<TrueTypeCollection> ttcLoaded = new HashSet<TrueTypeCollection>();
-	
+
 	public PdfBrewer() {
+		this(getDefaultFontDir());
+	}
+	
+	public PdfBrewer(Path fontDir) {
+		fontLoader = new FontLoader(fontDir.toFile());
 		document = new PDDocument();
-		//document.setVersion(1.4f);
 		
 		PDDocumentInformation info = document.getDocumentInformation();
 		producer = getDefaultProducer();
 		info.setProducer(producer);
 		creator = getDefaultCreator();
 		info.setCreator(creator);
+	}
+	
+	public FontLoader getFontLoader() {
+		return fontLoader;
 	}
 	
 	public String getProducer() {
@@ -127,11 +146,11 @@ public class PdfBrewer {
 	
 	public PDFont loadFont(String fontName) throws IOException {
 		PDFont font = null;
-		TrueTypeFont ttf = FontLoader.get(fontName);
+		TrueTypeFont ttf = getFontLoader().get(fontName);
 		if(ttf != null) {
 			font = fonts.get(ttf.getName());
 			if(font == null) {
-				File file = FontLoader.getFile(ttf);
+				File file = getFontLoader().getFile(ttf);
 				if(file != null) {
 					TrueTypeCollection ttc = new TrueTypeCollection(file);
 					font = PDType0Font.load(document, ttc.getFontByName(ttf.getName()), true);
@@ -158,7 +177,7 @@ public class PdfBrewer {
 			mediaBox = PDRectangle.A4;
 		}
 		
-		Context context = new Context(new Context(mediaBox), 0);
+		Context context = new Context(new Context(getFontLoader(), mediaBox), 0);
 		TextBuffer textBuffer = new TextBuffer();
 		
 		if(pb.getTitle() != null) {

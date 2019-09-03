@@ -1,7 +1,7 @@
 <#assign 消費税率 = 0.08>
 <#assign 小計 = 0>
 <#list 明細 as 行>
-	<#if 行.単価?replace(",", "")?length gt 1>
+	<#if (行.単価!)?replace(",", "")?length gt 0 && (行.数量!)?replace(",", "")?length gt 0>
 		<#assign 小計 += 行.単価?replace(",", "")?number * 行.数量?replace(",", "")?number>
 	</#if>
 </#list>

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
+import net.osdn.pdf_brewer.instruction.text.TextOverflow;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 import net.osdn.pdf_brewer.instruction.Align;
@@ -115,6 +116,8 @@ public class BrewerData {
 							}
 						} else if(first.equals("text-align")) {
 							instructions.add(new TextAlign(indent, tokens));
+						} else if(first.equals("text-overflow")) {
+							instructions.add(new TextOverflow(indent, tokens));
 						}
 					} catch(IllegalArgumentException e) {
 						e.printStackTrace();

@@ -168,6 +168,26 @@
 				\font serif 10.5
 				\text ${作業内容.明細[0].単位}
 			</#if>
+			<#if 作業内容.明細?size gte 2 && 作業内容.明細[1].内容?has_content>
+			\box 1 10 -26 14
+				\align center left
+				\font serif 10.5
+				\text ${作業内容.明細[1].内容}
+			\box 133 10 25 14
+				\align center
+				\font serif 10.5
+				\text ${作業内容.明細[1].単位}
+			</#if>
+			<#if 作業内容.明細?size gte 3 && 作業内容.明細[2].内容?has_content>
+			\box 1 14 -26 18
+				\align center left
+				\font serif 10.5
+				\text ${作業内容.明細[2].内容}
+			\box 133 14 25 18
+				\align center
+				\font serif 10.5
+				\text ${作業内容.明細[2].単位}
+			</#if>
 			
 	\box 10 138 -10 0
 		\align left top

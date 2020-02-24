@@ -22,6 +22,7 @@ public class Context {
 	private float fontSize;
 	private float lineHeight; //行の高さ倍率
 	private Horizontal textAlign;
+	private Overflow textOverflow;
 	
 	private float lineWidth; //RectやLineで線を描画するときの線の太さ
 	private int lineStyle;
@@ -44,6 +45,7 @@ public class Context {
 		fontSize = 14.0f;
 		lineHeight = 1.8f;
 		textAlign = Horizontal.Left;
+		textOverflow = Overflow.Wrap;
 		
 		lineWidth = LineStyle.WIDTH_MEDIUM;
 		lineStyle = LineStyle.LINE_SOLID;
@@ -67,6 +69,7 @@ public class Context {
 		fontSize = parent.getFontSize();
 		lineHeight = parent.getLineHeight();
 		textAlign = parent.getTextAlignment();
+		textOverflow = parent.getTextOverflow();
 		
 		lineWidth = parent.getLineWidth();
 		lineStyle = parent.getLineStyle();
@@ -175,7 +178,15 @@ public class Context {
 	public void setTextAlignment(Horizontal textAlign) {
 		this.textAlign = textAlign;
 	}
-	
+
+	public Overflow getTextOverflow() {
+		return textOverflow;
+	}
+
+	public void setTextOverflow(Overflow textOverflow) {
+		this.textOverflow = textOverflow;
+	}
+
 	public float getLineWidth() {
 		return lineWidth;
 	}

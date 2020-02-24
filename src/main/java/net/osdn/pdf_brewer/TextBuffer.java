@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.osdn.pdf_brewer.instruction.text.TextOverflow;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 
@@ -47,9 +48,14 @@ public class TextBuffer {
 				ops.add(new LineHeightOp(lineHeightInstruction.getLineHeight()));
 			}
 		} else if(instruction instanceof TextAlign) {
-			TextAlign textAlignInstruction = (TextAlign)instruction;
-			if(textAlignInstruction.getTextAlignment() != null) {
+			TextAlign textAlignInstruction = (TextAlign) instruction;
+			if (textAlignInstruction.getTextAlignment() != null) {
 				ops.add(new TextAlignOp(textAlignInstruction.getTextAlignment()));
+			}
+		} else if(instruction instanceof TextOverflow) {
+			TextOverflow textOverflowInstruction = (TextOverflow)instruction;
+			if(textOverflowInstruction.getTextOverflow() != null) {
+				ops.add(new TextOverflowOp(textOverflowInstruction.getTextOverflow()));
 			}
 		} else {
 			
@@ -69,6 +75,10 @@ public class TextBuffer {
 		Horizontal textAlign = context.getTextAlignment();
 		if(textAlign == null) {
 			textAlign = Horizontal.Left;
+		}
+		Overflow textOverflow = context.getTextOverflow();
+		if(textOverflow == null) {
+			textOverflow = Overflow.Wrap;
 		}
 		float fontSize = context.getFontSize();
 		float lineHeight = context.getLineHeight();
@@ -110,14 +120,47 @@ public class TextBuffer {
 								leading[lineNumber] = l;
 							}
 						}
-						ops2.add(new TextOp(result.text1));
-						lineWidth[lineNumber] += result.width;
-						rest -= result.width;
 						if(result.text2 == null) {
 							// 改行の必要なくすべて出力可能。
+							ops2.add(new TextOp(result.text1));
+							lineWidth[lineNumber] += result.width;
+							rest -= result.width;
+
+							// 続く行（text2）が存在しないので処理を終了します。
+							text = null;
+						} else if(textOverflow == Overflow.Truncate) {
+							// 切り捨て（Truncate）が指定されている。
+							ops2.add(new TextOp(result.text1));
+							lineWidth[lineNumber] += result.width;
+							rest -= result.width;
+
+							// 続く行（text2）が残っていますが処理せずに終了します。（切り捨て）
+							text = null;
+						} else if(textOverflow == Overflow.Ellipsis) {
+							// 省略（Ellipsis）が指定されている。
+							// 行末に省略記号を追加します。余白が不足している場合は、result.text1 の末尾から1文字ずつ削っていきます。
+							String ellipsisChar = "\u2026";
+							float ellipsisWidth = getStringWidth(font, fontSize, ellipsisChar);
+							while(result.text1.length() >= 1 && rest - result.width - ellipsisWidth < 0.0f) {
+								result.text1 = result.text1.substring(0, result.text1.length() - 1);
+								result.width = getStringWidth(font, fontSize, result.text1);
+							}
+							if(rest - result.width - ellipsisWidth >= 0.0f) {
+								result.text1 += ellipsisChar;
+								result.width = getStringWidth(font, fontSize, result.text1);
+							}
+							ops2.add(new TextOp(result.text1));
+							lineWidth[lineNumber] += result.width;
+							rest -= result.width;
+
+							// 続く行（text2）が残っていますが処理せずに終了します。（省略）
 							text = null;
 						} else {
 							// テキストの一部を出力可能。残りを出力するために改行が必要。
+							ops2.add(new TextOp(result.text1));
+							lineWidth[lineNumber] += result.width;
+							rest -= result.width;
+
 							float w = lineWidth[lineNumber];
 							float h = lineNumber == 0 ? fontHeight[0] : leading[lineNumber];
 							ops2.add(new NewLineOp(w, h));
@@ -149,11 +192,11 @@ public class TextBuffer {
 				ops2.add(fontOp);
 				isHeightChanged = true;
 			} else if(op instanceof TextAlignOp) {
-				TextAlignOp textAlignOp = (TextAlignOp)op;
-				if(textAlignOp.textAlign != null) {
-					if(textAlign != textAlignOp.textAlign) {
+				TextAlignOp textAlignOp = (TextAlignOp) op;
+				if (textAlignOp.textAlign != null) {
+					if (textAlign != textAlignOp.textAlign) {
 						textAlign = textAlignOp.textAlign;
-						if(lineWidth[lineNumber] > 0f) {
+						if (lineWidth[lineNumber] > 0f) {
 							float w = lineWidth[lineNumber];
 							float h = lineNumber == 0 ? fontHeight[0] : leading[lineNumber];
 							ops2.add(new NewLineOp(w, h));
@@ -163,6 +206,12 @@ public class TextBuffer {
 						}
 					}
 					ops2.add(textAlignOp);
+				}
+			} else if(op instanceof TextOverflowOp) {
+				TextOverflowOp textOverflowOp = (TextOverflowOp)op;
+				if(textOverflowOp.textOverflow != null) {
+					textOverflow = textOverflowOp.textOverflow;
+					context.setTextOverflow(textOverflow);
 				}
 			} else if(op instanceof LineHeightOp) {
 				LineHeightOp lineHeightOp = (LineHeightOp)op;
@@ -383,6 +432,14 @@ public class TextBuffer {
 		
 		public TextAlignOp(Horizontal textAlign) {
 			this.textAlign = textAlign;
+		}
+	}
+
+	private static class TextOverflowOp extends Op {
+		public Overflow textOverflow;
+
+		public TextOverflowOp(Overflow textOverflow) {
+			this.textOverflow = textOverflow;
 		}
 	}
 	

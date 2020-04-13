@@ -1,17 +1,12 @@
 apply plugin: 'java'
-apply plugin: 'eclipse'
 
 archivesBaseName = 'pdf-brewer'
-version = '0.4'
+version = '0.4.1'
 
-def defaultEncoding = 'UTF-8'
-tasks.withType(AbstractCompile).each { it.options.encoding = defaultEncoding }
-tasks.withType(GroovyCompile).each { it.groovyOptions.encoding = defaultEncoding }
-
-javadoc {
-	options.charSet = 'UTF-8'
-	options.encoding = 'UTF-8'
-	options.stylesheetFile = new File(rootDir, 'javadoc.css')
+tasks.withType(JavaCompile) {
+	sourceCompatibility = 11
+	targetCompatibility = 11
+	options.compilerArgs << '-Xlint:all'
 }
 
 repositories {
@@ -23,10 +18,24 @@ dependencies {
 		includes: ['**/*.jar'],
 		excludes: ['**/*-sources.jar', '**/*-javadoc.jar'])
 
-	compile 'org.apache.pdfbox:pdfbox:2.0.18'
-	compile 'org.apache.pdfbox:fontbox:2.0.18'
+	compile 'org.apache.pdfbox:pdfbox:2.0.19'
+	compile 'org.apache.pdfbox:fontbox:2.0.19'
 
 	compile 'net.osdn.util.io:auto-detect-reader:0.1.1'
+}
+
+sourceSets.main.resources {
+	srcDirs = ['src/main/resources', 'src/main/java' ]
+}
+
+def defaultEncoding = 'UTF-8'
+tasks.withType(AbstractCompile).each { it.options.encoding = defaultEncoding }
+tasks.withType(GroovyCompile).each { it.groovyOptions.encoding = defaultEncoding }
+
+javadoc {
+	options.charSet = 'UTF-8'
+	options.encoding = 'UTF-8'
+	options.stylesheetFile = new File(rootDir, 'javadoc.css')
 }
 
 defaultTasks 'clean', 'build'

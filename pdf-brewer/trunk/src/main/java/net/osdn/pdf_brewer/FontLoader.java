@@ -69,6 +69,10 @@ public class FontLoader {
 	}
 	
 	public TrueTypeFont get(String name) {
+		if(name == null || name.isBlank()) {
+			return null;
+		}
+
 		TrueTypeFont ttf = fonts.get(normalize(name));
 		if(ttf != null) {
 			return ttf;
@@ -147,16 +151,22 @@ public class FontLoader {
 		
 		List<String> names = new ArrayList<String>();
 		String fontName = ttf.getName();
-		names.add(normalize(fontName));
-		
+		if(fontName != null && !fontName.isBlank()) {
+			names.add(normalize(fontName));
+		}
+
 		NamingTable table = ttf.getNaming();
 		String fontFamily = table.getFontFamily();
 		String fontSubFamily = table.getFontSubFamily();
-		names.add(normalize(fontFamily + "-" + fontSubFamily));
-		
+		if(fontFamily != null && !fontFamily.isBlank() && fontSubFamily != null && !fontSubFamily.isBlank()) {
+			names.add(normalize(fontFamily + "-" + fontSubFamily));
+		}
+
 		String postScriptName = table.getPostScriptName();
-		names.add(normalize(postScriptName));
-		
+		if(postScriptName != null && !postScriptName.isBlank()) {
+			names.add(normalize(postScriptName));
+		}
+
 		Set<Integer> languages = new HashSet<Integer>();
 		Map<Integer, String> fontFamilies1 = new HashMap<Integer, String>();
 		Map<Integer, String> fontSubFamilies2 = new HashMap<Integer, String>();
@@ -180,18 +190,18 @@ public class FontLoader {
 		}
 		for(Integer languageId : languages) {
 			fontFamily = fontFamilies1.get(languageId);
-			if(fontFamily != null) {
+			if(fontFamily != null && !fontFamily.isBlank()) {
 				fontSubFamily = fontSubFamilies2.get(languageId);
-				if(fontSubFamily != null) {
+				if(fontSubFamily != null && !fontSubFamily.isBlank()) {
 					names.add(normalize(fontFamily + "-" + fontSubFamily));
 				} else {
 					names.add(normalize(fontFamily));
 				}
 			}
 			fontFamily = fontFamilies16.get(languageId);
-			if(fontFamily != null) {
+			if(fontFamily != null && !fontFamily.isBlank()) {
 				fontSubFamily = fontSubFamilies17.get(languageId);
-				if(fontSubFamily != null) {
+				if(fontSubFamily != null && !fontSubFamily.isBlank()) {
 					names.add(normalize(fontFamily + "-" + fontSubFamily));
 				} else {
 					names.add(normalize(fontFamily));

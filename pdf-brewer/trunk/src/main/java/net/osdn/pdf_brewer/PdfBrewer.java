@@ -76,8 +76,6 @@ public class PdfBrewer {
 		return null;
 	}
 	
-	private String producer;
-	private String creator;
 	private PDRectangle mediaBox;
 	private PDDocument document;
 	private PDPage page;
@@ -95,10 +93,8 @@ public class PdfBrewer {
 		document = new PDDocument();
 		
 		PDDocumentInformation info = document.getDocumentInformation();
-		producer = getDefaultProducer();
-		info.setProducer(producer);
-		creator = getDefaultCreator();
-		info.setCreator(creator);
+		info.setProducer(getDefaultProducer());
+		info.setCreator(getDefaultCreator());
 	}
 	
 	public FontLoader getFontLoader() {
@@ -106,16 +102,44 @@ public class PdfBrewer {
 	}
 	
 	public String getProducer() {
-		return this.producer;
+		PDDocumentInformation info = document.getDocumentInformation();
+		return info.getProducer();
+	}
+
+	public void setProducer(String producer) {
+		if(producer == null) {
+			producer = "";
+		}
+		PDDocumentInformation info = document.getDocumentInformation();
+		info.setProducer(producer);
 	}
 	
 	public String getCreator() {
-		return this.creator;
+		PDDocumentInformation info = document.getDocumentInformation();
+		return info.getCreator();
 	}
-	
+
+	public void setCreator(String creator) {
+		if(creator == null) {
+			creator = "";
+		}
+		PDDocumentInformation info = document.getDocumentInformation();
+		info.setCreator(creator);
+	}
+
+	public String getTitle() {
+		PDDocumentInformation info = document.getDocumentInformation();
+		return info.getTitle();
+	}
+
 	public void setTitle(String title) {
 		PDDocumentInformation info = document.getDocumentInformation();
 		info.setTitle(title);
+	}
+
+	public String getAuthor() {
+		PDDocumentInformation info = document.getDocumentInformation();
+		return info.getAuthor();
 	}
 	
 	public void setAuthor(String author) {

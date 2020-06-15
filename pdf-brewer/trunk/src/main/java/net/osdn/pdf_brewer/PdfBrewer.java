@@ -1,9 +1,11 @@
 package net.osdn.pdf_brewer;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
@@ -247,11 +249,24 @@ public class PdfBrewer {
 	}
 	
 	public void save(String pathname) throws IOException {
-		save(new FileOutputStream(pathname));
+		try(OutputStream f = new FileOutputStream(pathname);
+			OutputStream out = new BufferedOutputStream(f)) {
+			save(out);
+		}
 	}
 	
 	public void save(File file) throws IOException {
-		save(new FileOutputStream(file));
+		try(OutputStream f = new FileOutputStream(file);
+			OutputStream out = new BufferedOutputStream(f)) {
+			save(out);
+		}
+	}
+
+	public void save(Path path) throws IOException {
+		try(OutputStream f = Files.newOutputStream(path);
+			OutputStream out = new BufferedOutputStream(f)) {
+			save(out);
+		}
 	}
 	
 	public void save(OutputStream output) throws IOException {
@@ -271,7 +286,7 @@ public class PdfBrewer {
 		form.setFields(Arrays.asList(sigField));
 		document.getDocumentCatalog().setAcroForm(form);
 		*/
-		
+
 		document.save(output);
 		document.close();
 		

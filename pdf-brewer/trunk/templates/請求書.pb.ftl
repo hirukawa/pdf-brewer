@@ -1,4 +1,4 @@
-<#assign 消費税率 = 0.08>
+<#assign 消費税率 = 0.10>
 <#assign 小計 = 0>
 <#list 明細 as 行>
 	<#if (行.単価!)?replace(",", "")?length gt 0 && (行.数量!)?replace(",", "")?length gt 0>
@@ -20,21 +20,21 @@
 		\font sans-serif 10
 		\text 請求書日付　
 		\font serif 12
-		\text ${請求書日付}\n
+		\text ${請求書日付!}\n
 		\font sans-serif 10
 		\text 請求書番号　
 		\font serif 12
-		\text ${請求書番号}
+		\text ${請求書番号!}
 	
 	\box 8 28 0 0
 		\align left top
 		\font serif bold 15
-		\text ${請求先.名前}\n
+		\text ${請求先.名前!}\n
 		\font serif 12.5
 		\line-height 2.5
-		\text ${請求先.郵便番号}\n
+		\text ${請求先.郵便番号!}\n
 		\line-height 2.0
-		\text ${請求先.住所?replace("\n", "\\n")}
+		\text ${(請求先.住所!)?replace("\n", "\\n")}
 		
 	<#if 請求先.担当者?has_content>
 	\box 11 55 0 0
@@ -42,7 +42,7 @@
 		\font sans-serif 11
 		\text 担当　
 		\font serif 13
-		\text ${請求先.担当者}
+		\text ${請求先.担当者!}
 	</#if>
 		
 	\box 0 70 0 0
@@ -54,20 +54,20 @@
 	\box -5 38 -100 0
 		\align right top
 		\font serif bold 15
-		\text ${請求元.名前}\n
+		\text ${請求元.名前!}\n
 		\font serif 11
 		\line-height 3.2
-		\text ${請求元.郵便番号}\n
+		\text ${請求元.郵便番号!}\n
 		\line-height 1.8
-		\text ${請求元.住所?replace("\n", "\\n")}\n
+		\text ${(請求元.住所!)?replace("\n", "\\n")}\n
 		\font sans-serif 9
 		\text 電話　 
 		\font serif 11
-		\text ${請求元.電話}\n
+		\text ${請求元.電話!}\n
 		\font sans-serif 9
 		\text メール 
 		\font serif 11
-		\text ${請求元.メール}
+		\text ${請求元.メール!}
 	
 	\box 0 88 -0 6.5
 		\align left top
@@ -80,7 +80,7 @@
 		\box 65 0 0 0
 			\text お支払い期限　
 			\font serif 12.5
-			\text ${支払期限}
+			\text ${支払期限!}
 	\line-style thick
 	\line 0 -0 -0 -0
 
@@ -105,10 +105,10 @@
 		\box 1 1.5 126 -1.5
 			\align left top
 			\font serif 10
-			\text ${明細[0].上段}
+			\text ${明細[0].上段!}
 			\align left bottom
 			\font serif 13
-			\text ${明細[0].下段}
+			\text ${明細[0].下段!}
 		\box 127 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
@@ -129,10 +129,10 @@
 		\box 1 1.5 126 -1.5
 			\align left top
 			\font serif 10
-			\text ${明細[1].上段}
+			\text ${明細[1].上段!}
 			\align left bottom
 			\font serif 13
-			\text ${明細[1].下段}
+			\text ${明細[1].下段!}
 		\box 127 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
@@ -153,10 +153,10 @@
 		\box 1 1.5 126 -1.5
 			\align left top
 			\font serif 10
-			\text ${明細[2].上段}
+			\text ${明細[2].上段!}
 			\align left bottom
 			\font serif 13
-			\text ${明細[2].下段}
+			\text ${明細[2].下段!}
 		\box 127 0 21 -1.5
 			\align right bottom
 			\font serif 12.5
@@ -177,10 +177,10 @@
 		\box 1 1.5 126 -1.5
 			\align left top
 			\font serif 10
-			\text ${明細[3].上段}
+			\text ${明細[3].上段!}
 			\align left bottom
 			\font serif 13
-			\text ${明細[3].下段}
+			\text ${明細[3].下段!}
 		\box 127 0 21 -1.5
 			\align right bottom
 			\font serif 12.5

@@ -27,7 +27,7 @@ public class Font extends TextBufferingInstruction {
 		}
 		if(sb.length() >= 2) {
 			String name = sb.substring(1);
-			TrueTypeFont ttf = fontLoader.get(name);
+			TrueTypeFont ttf = fontLoader.getFont(name);
 			if(ttf != null) {
 				fontName = ttf.getName();
 			}

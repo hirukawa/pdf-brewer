@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,21 +24,54 @@ import org.apache.fontbox.ttf.TrueTypeFont;
 
 public class FontLoader {
 
+	public static final List<String> FILENAMES_YUGOTHIC;
+	public static final List<String> FILENAMES_YUMINCHO;
+
+	static {
+		FILENAMES_YUGOTHIC = Arrays.asList(
+				"yugothib.ttf",
+				"yugothic-bold.ttf",
+				"yugothic.ttf",
+				"yugothil.ttf",
+				"yugothb.ttc",
+				"yugothl.ttc",
+				"yugothm.ttc",
+				"yugothr.ttc"
+		);
+		FILENAMES_YUMINCHO = Arrays.asList(
+				"yumin.ttf",
+				"yumindb.ttf",
+				"yuminl.ttf"
+		);
+	}
+
+	public static File getDefaultFontDir() {
+		String windir = System.getenv("windir");
+		if(windir != null) {
+			return new File(windir, "Fonts");
+		}
+		return null;
+	}
+
 	private Map<String, TrueTypeFont> fonts = new HashMap<String, TrueTypeFont>();
-	private Map<TrueTypeFont, File> files = new HashMap<TrueTypeFont, File>();
-	
+	private Map<TrueTypeFont, File> ttcFiles = new HashMap<TrueTypeFont, File>();
+
 	public FontLoader(File fontDir) {
-		load(fontDir);
+		this(fontDir, null, null);
+	}
+
+	public FontLoader(File fontDir, Collection<String> fileNames, Collection<String> fontNames) {
+		load(fontDir, fileNames, fontNames);
 		
 		TrueTypeFont serif;
 		TrueTypeFont serifBold;
 		TrueTypeFont sansSerif;
 		TrueTypeFont sansSerifBold;
 		
-		serif = get("YuMincho-Regular");
-		serifBold = get("YuMincho-Demibold");
-		sansSerif = get("YuGothic-Regular");
-		sansSerifBold = get("YuGothic-Bold");
+		serif = getFont("YuMincho-Regular");
+		serifBold = getFont("YuMincho-Demibold");
+		sansSerif = getFont("YuGothic-Regular");
+		sansSerifBold = getFont("YuGothic-Bold");
 
 		if(serif != null && serifBold != null && sansSerif != null && sansSerifBold != null) {
 			try {
@@ -68,7 +102,7 @@ public class FontLoader {
 		return list;
 	}
 	
-	public TrueTypeFont get(String name) {
+	public TrueTypeFont getFont(String name) {
 		if(name == null || name.isBlank()) {
 			return null;
 		}
@@ -90,12 +124,28 @@ public class FontLoader {
 		
 		return null;
 	}
-	
-	public File getFile(TrueTypeFont ttf) throws IOException {
-		return files.get(ttf);
+
+	public File getTtcFile(TrueTypeFont ttf) throws IOException {
+		return ttcFiles.get(ttf);
 	}
-	
-	public void load(File dir) {
+
+	public void load(File dir, Collection<String> fileNames, Collection<String> fontNames) {
+		Set<String> fileNameSet = null;
+		if(fileNames != null) {
+			fileNameSet = new HashSet<String>();
+			for(String fileName : fileNames) {
+				fileNameSet.add(fileName.toLowerCase());
+			}
+		}
+
+		Set<String> fontNameSet = null;
+		if(fontNames != null) {
+			fontNameSet = new HashSet<String>();
+			for(String fontName : fontNames) {
+				fontNameSet.add(normalize(fontName));
+			}
+		}
+
 		TTFParser parser = new TTFParser();
 		File[] ttfFiles = dir.listFiles(new FilenameFilter() {
 			@Override
@@ -104,11 +154,32 @@ public class FontLoader {
 			}
 		});
 		for(File file : ttfFiles) {
+			if(fileNameSet != null && !fileNameSet.contains(file.getName().toLowerCase())) {
+				// fileNames が指定されている場合は一致するファイルのみを処理対象にします。（一致しない場合は continue で次へ）
+				continue;
+			}
+			TrueTypeFont ttf = null;
 			try {
-				TrueTypeFont ttf = parser.parse(file);
-				register(ttf);
+				ttf = parser.parse(file);
+
+				if(fontNameSet == null) {
+					register(ttf);
+					ttf = null; // 登録したttfがfinallyでcloseされないようにします。
+				} else {
+					List<String> normalizedNames = getNormalizedNames(ttf);
+					if(!Collections.disjoint(fontNameSet, normalizedNames)) {
+						for(String s : normalizedNames) {
+							register(s, ttf);
+							ttf = null; // 登録したttfがfinallyでcloseされないようにします。
+						}
+					}
+				}
 			} catch(IOException e) {
 				e.printStackTrace();
+			} finally {
+				if(ttf != null) {
+					try { ttf.close(); } catch(IOException ignore) {}
+				}
 			}
 		}
 		
@@ -119,14 +190,38 @@ public class FontLoader {
 			}
 		});
 		for(File file : ttcFiles) {
+			if(fileNameSet != null && !fileNameSet.contains(file.getName().toLowerCase())) {
+				// fileNames が指定されている場合は一致するファイルのみを処理対象にします。（一致しない場合は continue で次へ）
+				continue;
+			}
+
 			TrueTypeCollection ttc = null;
 			try {
+				final Set<String> _fontNameSet = fontNameSet;
 				ttc = new TrueTypeCollection(file);
 				ttc.processAllFonts(new TrueTypeFontProcessor() {
 					@Override
 					public void process(TrueTypeFont ttf) throws IOException {
-						register(ttf);
-						files.put(ttf, file);
+						try {
+							if(_fontNameSet == null) {
+								register(ttf);
+								FontLoader.this.ttcFiles.put(ttf, file);
+								ttf = null; // 登録したttfがfinallyでcloseされないようにします。
+							} else {
+								List<String> normalizedNames = getNormalizedNames(ttf);
+								if(!Collections.disjoint(_fontNameSet, normalizedNames)) {
+									for(String s : normalizedNames) {
+										register(s, ttf);
+									}
+									FontLoader.this.ttcFiles.put(ttf, file);
+									ttf = null; // 登録したttfがfinallyでcloseされないようにします。
+								}
+							}
+						} finally {
+							if(ttf != null) {
+								try { ttf.close(); } catch(IOException ignore) {}
+							}
+						}
 					}
 				});
 			} catch(IOException e) {
@@ -148,7 +243,12 @@ public class FontLoader {
 			fonts.put(normalize(name), ttf);
 			return;
 		}
-		
+		for(String nomalizedName : getNormalizedNames(ttf)) {
+			fonts.put(nomalizedName, ttf);
+		}
+	}
+
+	public List<String> getNormalizedNames(TrueTypeFont ttf) throws IOException {
 		List<String> names = new ArrayList<String>();
 		String fontName = ttf.getName();
 		if(fontName != null && !fontName.isBlank()) {
@@ -208,12 +308,10 @@ public class FontLoader {
 				}
 			}
 		}
-		
-		for(String s : names) {
-			fonts.put(s, ttf);
-		}
+		return names;
 	}
-	
+
+
 	private String normalize(String name) {
 		String s = name.replace('\t', '-').replace('\u3000', '-').replace(' ', '-').toLowerCase();
 		while(s.contains("--")) {
@@ -230,5 +328,14 @@ public class FontLoader {
 			}
 		}
 		return sb.toString();
+	}
+
+	public void close() {
+		ttcFiles.clear();
+
+		for(TrueTypeFont ttf : fonts.values()) {
+			try { ttf.close(); } catch(IOException ignore) {}
+		}
+		fonts.clear();
 	}
 }

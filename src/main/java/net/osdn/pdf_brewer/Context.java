@@ -132,7 +132,7 @@ public class Context {
 	
 	public void setFont(String fontName, float fontSize) throws IOException {
 		if(fontName != null) {
-			TrueTypeFont ttf = getFontLoader().get(fontName);
+			TrueTypeFont ttf = getFontLoader().getFont(fontName);
 			if(ttf != null) {
 				this.fontName = ttf.getName();
 			}
@@ -147,7 +147,7 @@ public class Context {
 	}
 	
 	public void setFontName(String fontName) throws IOException {
-		TrueTypeFont ttf = getFontLoader().get(fontName);
+		TrueTypeFont ttf = getFontLoader().getFont(fontName);
 		if(ttf != null) {
 			this.fontName = ttf.getName();
 		}

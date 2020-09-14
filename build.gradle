@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 archivesBaseName = 'pdf-brewer'
-version = '0.4.3'
+version = '0.4.4'
 
 tasks.withType(JavaCompile) {
 	sourceCompatibility = 11
@@ -45,3 +45,16 @@ jar {
 		attributes "Specification-Version": "${project.version}"
 	}
 }
+
+task copyLibraries(type: Copy) {
+	setGroup("build")
+	setDescription("Copy dependency libraries.")
+	from (sourceSets.main.runtimeClasspath) {
+		include '*.jar'
+	}
+	from('lib') {
+		include '*.dll'
+	}
+	into "${buildDir}/package/lib/"
+}
+

@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 archivesBaseName = 'pdf-brewer'
-version = '0.4.4'
+version = '0.4.5'
 
 tasks.withType(JavaCompile) {
 	sourceCompatibility = 11
@@ -18,8 +18,8 @@ dependencies {
 		includes: ['**/*.jar'],
 		excludes: ['**/*-sources.jar', '**/*-javadoc.jar'])
 
-	implementation 'org.apache.pdfbox:pdfbox:2.0.20'
-	implementation 'org.apache.pdfbox:fontbox:2.0.20'
+	implementation 'org.apache.pdfbox:pdfbox:2.0.21'
+	implementation 'org.apache.pdfbox:fontbox:2.0.21'
 
 	implementation 'net.osdn.util.io:auto-detect-reader:0.1.1'
 }

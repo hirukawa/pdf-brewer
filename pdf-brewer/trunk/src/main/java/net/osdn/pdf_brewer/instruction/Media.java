@@ -22,6 +22,15 @@ public class Media extends Instruction {
 				mediaBox = parse(s);
 			}
 		}
+
+		// 定形用紙サイズが指定されず、数値パラメーターが2つ指定されている場合は、
+		// それを横と縦のサイズ（単位はミリメートル）とします。
+		if(mediaBox == null && params.size() == 2
+				&& (params.get(0) instanceof Number) && (params.get(1) instanceof Number)) {
+			double width = ((Number)params.get(0)).doubleValue();
+			double height = ((Number)params.get(1)).doubleValue();
+			mediaBox = new PDRectangle(mm2pt(width), mm2pt(height));
+		}
 	}
 	
 	public PDRectangle getRectangle() {

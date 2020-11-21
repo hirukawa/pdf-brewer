@@ -26,10 +26,10 @@ public class FontLoader {
 
 	public static final List<String> FILENAMES_YUGOTHIC;
 	public static final List<String> FILENAMES_YUMINCHO;
-	public static final List<String> FILENAMES_IPA_GOTHIC;
-	public static final List<String> FILENAMES_IPA_MINCHO;
 	public static final List<String> FILENAMES_NOTO_GOTHIC;
 	public static final List<String> FILENAMES_NOTO_MINCHO;
+	public static final List<String> FILENAMES_IPA_GOTHIC;
+	public static final List<String> FILENAMES_IPA_MINCHO;
 
 	static {
 		//

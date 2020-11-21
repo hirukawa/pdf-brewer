@@ -26,8 +26,15 @@ public class FontLoader {
 
 	public static final List<String> FILENAMES_YUGOTHIC;
 	public static final List<String> FILENAMES_YUMINCHO;
+	public static final List<String> FILENAMES_IPA_GOTHIC;
+	public static final List<String> FILENAMES_IPA_MINCHO;
+	public static final List<String> FILENAMES_NOTO_GOTHIC;
+	public static final List<String> FILENAMES_NOTO_MINCHO;
 
 	static {
+		//
+		// for Windows
+		//
 		FILENAMES_YUGOTHIC = Arrays.asList(
 				"yugothib.ttf",
 				"yugothic-bold.ttf",
@@ -42,6 +49,28 @@ public class FontLoader {
 				"yumin.ttf",
 				"yumindb.ttf",
 				"yuminl.ttf"
+		);
+
+		//
+		// for NOTO
+		//
+		FILENAMES_NOTO_GOTHIC = Arrays.asList(
+				"GenShinGothic-Regular.ttf",
+				"GenShinGothic-Bold.ttf"
+		);
+		FILENAMES_NOTO_MINCHO = Arrays.asList(
+				"GenYoMinJP-R.ttf",
+				"GenYoMinJP-B.ttf"
+		);
+
+		//
+		// for IPA
+		//
+		FILENAMES_IPA_GOTHIC = Arrays.asList(
+				"ipaexg.ttf"
+		);
+		FILENAMES_IPA_MINCHO = Arrays.asList(
+				"ipaexm.ttf"
 		);
 	}
 
@@ -67,11 +96,40 @@ public class FontLoader {
 		TrueTypeFont serifBold;
 		TrueTypeFont sansSerif;
 		TrueTypeFont sansSerifBold;
-		
+
+		// for Windows
 		serif = getFont("YuMincho-Regular");
 		serifBold = getFont("YuMincho-Demibold");
 		sansSerif = getFont("YuGothic-Regular");
 		sansSerifBold = getFont("YuGothic-Bold");
+
+		// for Noto (fallback)
+		if(serif == null) {
+			serif = getFont("r-源様明朝");
+		}
+		if(serifBold == null) {
+			serifBold = getFont("b-源様明朝");
+		}
+		if(sansSerif == null) {
+			sansSerif = getFont("regular-源真ゴシック");
+		}
+		if(sansSerifBold == null) {
+			sansSerifBold = getFont("bold-源真ゴシック");
+		}
+
+		// for IPA (fallback)
+		if(serif == null) {
+			serif = getFont("ipaexmincho");
+		}
+		if(serifBold == null) {
+			serifBold = getFont("ipaexmincho");
+		}
+		if(sansSerif == null) {
+			sansSerif = getFont("ipaexgothic");
+		}
+		if(sansSerifBold == null) {
+			sansSerifBold = getFont("ipaexgothic");
+		}
 
 		if(serif != null && serifBold != null && sansSerif != null && sansSerifBold != null) {
 			try {
@@ -130,6 +188,10 @@ public class FontLoader {
 	}
 
 	public void load(File dir, Collection<String> fileNames, Collection<String> fontNames) {
+		if(dir == null) {
+			return;
+		}
+
 		Set<String> fileNameSet = null;
 		if(fileNames != null) {
 			fileNameSet = new HashSet<String>();

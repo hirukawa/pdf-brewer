@@ -55,10 +55,14 @@ public class FontLoader {
 		// for NOTO
 		//
 		FILENAMES_NOTO_GOTHIC = Arrays.asList(
+				"NotoSansJP-Regular.ttf",
+				"NotoSansJP-Bold.ttf",
 				"GenShinGothic-Regular.ttf",
 				"GenShinGothic-Bold.ttf"
 		);
 		FILENAMES_NOTO_MINCHO = Arrays.asList(
+				"NotoSerifJP-Regular.ttf",
+				"NotoSerifJP-Bold.ttf",
 				"GenYoMinJP-R.ttf",
 				"GenYoMinJP-B.ttf"
 		);

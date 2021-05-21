@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.CodeSource;
@@ -33,7 +34,6 @@ import net.osdn.pdf_brewer.instruction.text.Font;
 import net.osdn.pdf_brewer.instruction.text.LineHeight;
 import net.osdn.pdf_brewer.instruction.text.Text;
 import net.osdn.pdf_brewer.instruction.text.TextAlign;
-import net.osdn.util.io.AutoDetectReader;
 
 public class BrewerData {
 
@@ -52,7 +52,7 @@ public class BrewerData {
 			throw new IllegalArgumentException();
 		}
 		
-		List<String> lines = AutoDetectReader.readAllLines(path);
+		List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 		
 		this.fontLoader = fontLoader;
 		initialize(lines);

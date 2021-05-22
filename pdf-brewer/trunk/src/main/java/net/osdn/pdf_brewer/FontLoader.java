@@ -63,8 +63,8 @@ public class FontLoader {
 		FILENAMES_NOTO_MINCHO = Arrays.asList(
 				"NotoSerifJP-Regular.ttf",
 				"NotoSerifJP-Bold.ttf",
-				"GenYoMinJP-R.ttf",
-				"GenYoMinJP-B.ttf"
+				"GenYoMinJP-Regular.ttf",
+				"GenYoMinJP-Bold.ttf"
 		);
 
 		//
@@ -108,17 +108,45 @@ public class FontLoader {
 		sansSerifBold = getFont("YuGothic-Bold");
 
 		// for Noto (fallback)
+		/* FontForgeで NotoSerifJP の OTF->TTF 化を試みましたが多くのグリフが欠落してしまい上手くいきませんでした。
+		 * NotoSerifJP の TTF 化が成功するまで "notoserifjp-regular", "bold-notoserifjp" を対象から外しておきます。
+		if(serif == null) {
+			serif = getFont("notoserifjp-regular");
+		}
+		if(serifBold == null) {
+			serifBold = getFont("bold-notoserifjp");
+		}
+		*/
+		// 源様明朝 Regular, 源様明朝 Bold (1.001)
+		// Ver1.001 は、源ノ明朝 をそのまま TTF に変換したものです。
 		if(serif == null) {
 			serif = getFont("r-源様明朝");
 		}
 		if(serifBold == null) {
 			serifBold = getFont("b-源様明朝");
 		}
+		// 源様明朝 R, 源様明朝 B (1.501)
+		// Ver1.501 で、かなや括弧類がプロポーショナルになってしまったため、上記の Ver1.001 のほうがおすすめ。
+		if(serif == null) {
+			serif = getFont("genyominjp-regular");
+		}
+		if(serifBold == null) {
+			serifBold = getFont("bold-genyominjp");
+		}
+		/* FontForgeで NotoSansJP の OTF->TTF 化を試みましたが多くのグリフが欠落してしまい上手くいきませんでした。
+		 * NotoSansJP の TTF 化が成功するまで "notosansjp-regular", "bold-notosansjp" を対象から外しておきます。
 		if(sansSerif == null) {
-			sansSerif = getFont("regular-源真ゴシック");
+			sansSerif = getFont("notosansjp-regular");
 		}
 		if(sansSerifBold == null) {
-			sansSerifBold = getFont("bold-源真ゴシック");
+			sansSerifBold = getFont("bold-notosansjp");
+		}
+		*/
+		if(sansSerif == null) {
+			sansSerif = getFont("genshingothic-regular");
+		}
+		if(sansSerifBold == null) {
+			sansSerifBold = getFont("bold-genshingothic");
 		}
 
 		// for IPA (fallback)

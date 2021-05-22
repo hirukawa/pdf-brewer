@@ -72,6 +72,9 @@ public class TextBuffer {
 	
 	public void process(PdfBrewer brewer, Context context) throws IOException {
 		PDFont font = brewer.loadFont(context.getFontName());
+		if(font == null) {
+			throw new NullPointerException("Font not found: " + context.getFontName());
+		}
 		Horizontal textAlign = context.getTextAlignment();
 		if(textAlign == null) {
 			textAlign = Horizontal.Left;
@@ -97,7 +100,7 @@ public class TextBuffer {
 			Op op = ops.get(i);
 			if(op instanceof TextOp) {
 				TextOp textOp = (TextOp)op;
-				String text = textOp.text;
+				String text = sanitize(font, textOp.text, "?");
 				while(text != null) {
 					DivideResult result = divide(rest, font, fontSize, text);
 					if(result.text1 == null) {
@@ -139,7 +142,7 @@ public class TextBuffer {
 						} else if(textOverflow == Overflow.Ellipsis) {
 							// 省略（Ellipsis）が指定されている。
 							// 行末に省略記号を追加します。余白が不足している場合は、result.text1 の末尾から1文字ずつ削っていきます。
-							String ellipsisChar = "\u2026";
+							String ellipsisChar = sanitize(font, "\u2026", "...");
 							float ellipsisWidth = getStringWidth(font, fontSize, ellipsisChar);
 							while(result.text1.length() >= 1 && rest - result.width - ellipsisWidth < 0.0f) {
 								result.text1 = result.text1.substring(0, result.text1.length() - 1);
@@ -380,6 +383,41 @@ public class TextBuffer {
 	
 	public static float getFontHeight(PDFont font, float fontSize) {
 		return font.getFontDescriptor().getCapHeight() * fontSize / 1000f;
+	}
+
+	/** 指定したフォントに含まれていない文字を置き換えます
+	 *
+	 * @param font
+	 * @param text
+	 * @param replaceChar
+	 * @return
+	 * @throws IOException
+	 */
+	public static String sanitize(PDFont font, String text, String replaceChar) throws IOException {
+		if(text == null) {
+			return null;
+		}
+		try {
+			font.encode(text);
+		} catch(IllegalArgumentException e1) {
+			StringBuilder sb = new StringBuilder();
+			int length = text.length();
+			for(int i = 0; i < length; i++) {
+				String ch = text.substring(i, i + 1);
+				try {
+					font.encode(ch);
+					// encode で例外がスローされなければ ch のグリフは存在しています。
+					sb.append(ch);
+				} catch(IllegalArgumentException e2) {
+					// encode で例外がスローされた場合は ch ではなく replaceChar を追加します。
+					if(replaceChar != null) {
+						sb.append(replaceChar);
+					}
+				}
+			}
+			text = sb.toString();
+		}
+		return text;
 	}
 	
 	private static class DivideResult {

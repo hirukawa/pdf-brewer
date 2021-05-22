@@ -55,16 +55,25 @@ public class FontLoader {
 		// for NOTO
 		//
 		FILENAMES_NOTO_GOTHIC = Arrays.asList(
-				"NotoSansJP-Regular.ttf",
-				"NotoSansJP-Bold.ttf",
+				"KenEiGothicN-Ligh.ttf",
+				"KenEiGothicN-SemiLight.ttf",
+				"KenEiGothicN-Regular.ttf",
 				"GenShinGothic-Regular.ttf",
 				"GenShinGothic-Bold.ttf"
+				/*
+				"NotoSansJP-Regular.ttf",
+				"NotoSansJP-Bold.ttf",
+				*/
 		);
 		FILENAMES_NOTO_MINCHO = Arrays.asList(
+				"GenEiKoburiMin6-R.ttf",
+				"GenYoMinJP-Regular.ttf",
+				"GenYoMinJP-SemiBold.ttf",
+				"GenYoMinJP-Bold.ttf"
+				/*
 				"NotoSerifJP-Regular.ttf",
 				"NotoSerifJP-Bold.ttf",
-				"GenYoMinJP-Regular.ttf",
-				"GenYoMinJP-Bold.ttf"
+				*/
 		);
 
 		//
@@ -117,6 +126,10 @@ public class FontLoader {
 			serifBold = getFont("bold-notoserifjp");
 		}
 		*/
+		// 源暎こぶり明朝
+		if(serif == null) {
+			serif = getFont("geneikoburimin6-r");
+		}
 		// 源様明朝 Regular, 源様明朝 Bold (1.001)
 		// Ver1.001 は、源ノ明朝 をそのまま TTF に変換したものです。
 		if(serif == null) {
@@ -133,6 +146,13 @@ public class FontLoader {
 		if(serifBold == null) {
 			serifBold = getFont("bold-genyominjp");
 		}
+		if(serifBold == null) {
+			serifBold = getFont("genyominjp-sb"); // SemiBold
+		}
+		if(serifBold == null) {
+			serifBold = getFont("genyominjp-semibold");
+		}
+
 		/* FontForgeで NotoSansJP の OTF->TTF 化を試みましたが多くのグリフが欠落してしまい上手くいきませんでした。
 		 * NotoSansJP の TTF 化が成功するまで "notosansjp-regular", "bold-notosansjp" を対象から外しておきます。
 		if(sansSerif == null) {
@@ -142,6 +162,18 @@ public class FontLoader {
 			sansSerifBold = getFont("bold-notosansjp");
 		}
 		*/
+		if(sansSerif == null) {
+			// KenEiGothic の Light が YuGothic Regular の太さに近いです。
+			sansSerif = getFont("keneigothicn-light");
+		}
+		if(sansSerif == null) {
+			// KenEiGothic の SemiLight は YuGothic Regular よりも太いです。
+			sansSerif = getFont("keneigothicn-semilight");
+		}
+		if(sansSerif == null) {
+			// KenEiGothic の Regular は YuGothic Regular よりかなり太いです。
+			sansSerif = getFont("keneigothicn-regular");
+		}
 		if(sansSerif == null) {
 			sansSerif = getFont("genshingothic-regular");
 		}
@@ -163,13 +195,31 @@ public class FontLoader {
 			sansSerifBold = getFont("ipaexgothic");
 		}
 
-		if(serif != null && serifBold != null && sansSerif != null && sansSerifBold != null) {
+		if(serif != null) {
 			try {
 				register("serif", serif);
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(serifBold != null) {
+			try {
 				register("serif-Bold", serifBold);
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(sansSerif != null) {
+			try {
 				register("sansSerif", sansSerif);
-				register("sansSerif-Bold", sansSerifBold);
 				register("sans-Serif", sansSerif);
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(sansSerifBold != null) {
+			try {
+				register("sansSerif-Bold", sansSerifBold);
 				register("sans-Serif-Bold", sansSerifBold);
 			} catch(IOException e) {
 				e.printStackTrace();

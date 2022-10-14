@@ -58,21 +58,28 @@ public class FontLoader {
 				"KenEiGothicN-Ligh.ttf",
 				"KenEiGothicN-SemiLight.ttf",
 				"KenEiGothicN-Regular.ttf",
+
+				"GenShinGothic-Light.ttf",
+				"GenShinGothic-Normal.ttf",
 				"GenShinGothic-Regular.ttf",
+				"GenShinGothic-Medium.ttf",
 				"GenShinGothic-Bold.ttf"
+
 				/*
 				"NotoSansJP-Regular.ttf",
-				"NotoSansJP-Bold.ttf",
+				"NotoSansJP-Bold.ttf"
 				*/
 		);
 		FILENAMES_NOTO_MINCHO = Arrays.asList(
 				"GenEiKoburiMin6-R.ttf",
+
 				"GenYoMinJP-Regular.ttf",
 				"GenYoMinJP-SemiBold.ttf",
 				"GenYoMinJP-Bold.ttf"
+
 				/*
 				"NotoSerifJP-Regular.ttf",
-				"NotoSerifJP-Bold.ttf",
+				"NotoSerifJP-Bold.ttf"
 				*/
 		);
 
@@ -104,6 +111,34 @@ public class FontLoader {
 
 	public FontLoader(File fontDir, Collection<String> fileNames, Collection<String> fontNames) {
 		load(fontDir, fileNames, fontNames);
+
+		/*
+		try {
+			if(fileNames != null) {
+				for(String fileName : fileNames) {
+					System.out.println("fileName=" + fileName);
+				}
+			}
+			if (fontNames != null) {
+				for(String fontName : fontNames) {
+					System.out.println("fontName=" + fontName);
+				}
+			}
+			System.out.println();
+
+			for(TrueTypeFont ttf : fonts.values()) {
+				String fontName = ttf.getName();
+				NamingTable table = ttf.getNaming();
+				String fontFamily = table.getFontFamily();
+				String fontSubFamily = table.getFontSubFamily();
+				String postScriptName = table.getPostScriptName();
+				System.out.println("name=" + fontName + ", family=" + fontFamily + ", subFamily=" + fontSubFamily + ", postScriptName=" + postScriptName);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		*/
+
 		
 		TrueTypeFont serif;
 		TrueTypeFont serifBold;
@@ -141,7 +176,7 @@ public class FontLoader {
 		// 源様明朝 R, 源様明朝 B (1.501)
 		// Ver1.501 で、かなや括弧類がプロポーショナルになってしまったため、上記の Ver1.001 のほうがおすすめ。
 		if(serif == null) {
-			serif = getFont("genyominjp-regular");
+			serif = getFont("GenYoMinJP-Regular");
 		}
 		if(serifBold == null) {
 			serifBold = getFont("bold-genyominjp");
@@ -150,7 +185,7 @@ public class FontLoader {
 			serifBold = getFont("genyominjp-sb"); // SemiBold
 		}
 		if(serifBold == null) {
-			serifBold = getFont("genyominjp-semibold");
+			serifBold = getFont("GenYoMinJP-SemiBold");
 		}
 
 		/* FontForgeで NotoSansJP の OTF->TTF 化を試みましたが多くのグリフが欠落してしまい上手くいきませんでした。
@@ -174,11 +209,24 @@ public class FontLoader {
 			// KenEiGothic の Regular は YuGothic Regular よりかなり太いです。
 			sansSerif = getFont("keneigothicn-regular");
 		}
+
 		if(sansSerif == null) {
-			sansSerif = getFont("genshingothic-regular");
+			// 源真ゴシックの Regular は少し太いので Light があれば、Light を優先して使います。（これが YuGothic Regular の太さに近いです。）
+			sansSerif = getFont("GenShinGothic-Light");
+		}
+		if(sansSerif == null) {
+			// 源真ゴシックの Regular は少し太いので Normal があれば、Normal を優先して使います。
+			sansSerif = getFont("GenShinGothic-Normal");
+		}
+		if(sansSerif == null) {
+			sansSerif = getFont("GenShinGothic-Regular");
 		}
 		if(sansSerifBold == null) {
-			sansSerifBold = getFont("bold-genshingothic");
+			// 源真ゴシックの Bold はかなり太いので Medium があれば、Medium を優先して使います。（これが YuGothic Bold の太さに近いです。）
+			sansSerifBold = getFont("GenShinGothic-Medium");
+		}
+		if(sansSerifBold == null) {
+			sansSerifBold = getFont("GenShinGothic-Bold");
 		}
 
 		// for IPA (fallback)

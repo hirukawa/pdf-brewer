@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 archivesBaseName = 'pdf-brewer'
-version = '0.5.0'
+version = '0.5.1'
 
 tasks.withType(JavaCompile) {
 	sourceCompatibility = 11
@@ -18,8 +18,8 @@ dependencies {
 		includes: ['**/*.jar'],
 		excludes: ['**/*-sources.jar', '**/*-javadoc.jar'])
 
-	implementation 'org.apache.pdfbox:pdfbox:2.0.23'
-	implementation 'org.apache.pdfbox:fontbox:2.0.23'
+	implementation 'org.apache.pdfbox:pdfbox:2.0.27'
+	implementation 'org.apache.pdfbox:fontbox:2.0.27'
 }
 
 sourceSets.main.resources {

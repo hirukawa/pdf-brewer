@@ -1,12 +1,21 @@
-apply plugin: 'java'
+plugins {
+	id 'java'
+}
 
-archivesBaseName = 'pdf-brewer'
-version = '0.5.1'
+version = '0.6'
 
-tasks.withType(JavaCompile) {
-	sourceCompatibility = 11
-	targetCompatibility = 11
+java {
+	sourceCompatibility = 21
+	targetCompatibility = 21
+}
+
+compileJava {
+	options.encoding = 'UTF-8'
 	options.compilerArgs << '-Xlint:all'
+}
+
+sourceSets.main.resources {
+	srcDirs = [ 'src/main/resources', 'src/main/java' ]
 }
 
 repositories {
@@ -18,22 +27,8 @@ dependencies {
 		includes: ['**/*.jar'],
 		excludes: ['**/*-sources.jar', '**/*-javadoc.jar'])
 
-	implementation 'org.apache.pdfbox:pdfbox:2.0.27'
-	implementation 'org.apache.pdfbox:fontbox:2.0.27'
-}
-
-sourceSets.main.resources {
-	srcDirs = ['src/main/resources', 'src/main/java' ]
-}
-
-def defaultEncoding = 'UTF-8'
-tasks.withType(AbstractCompile).each { it.options.encoding = defaultEncoding }
-tasks.withType(GroovyCompile).each { it.groovyOptions.encoding = defaultEncoding }
-
-javadoc {
-	options.charSet = 'UTF-8'
-	options.encoding = 'UTF-8'
-	options.stylesheetFile = new File(rootDir, 'javadoc.css')
+	implementation 'org.apache.pdfbox:pdfbox:2.0.29'
+	implementation 'org.apache.pdfbox:fontbox:2.0.29'
 }
 
 defaultTasks 'clean', 'build'
@@ -43,16 +38,3 @@ jar {
 		attributes "Specification-Version": "${project.version}"
 	}
 }
-
-task copyLibraries(type: Copy) {
-	setGroup("build")
-	setDescription("Copy dependency libraries.")
-	from (sourceSets.main.runtimeClasspath) {
-		include '*.jar'
-	}
-	from('lib') {
-		include '*.dll'
-	}
-	into "${buildDir}/package/lib/"
-}
-

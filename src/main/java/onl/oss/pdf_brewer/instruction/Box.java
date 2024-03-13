@@ -71,7 +71,5 @@ public class Box extends Instruction {
             bottom = parent.getBottom() + p4;
         }
         context.setBox(left, top, right, bottom);
-
-        //System.out.println("Box: left=" + left + ", top=" + top + ", right=" + right + ", bottom=" + bottom + ", width=" + (right - left) + ", height=" + (bottom - top));
     }
 }

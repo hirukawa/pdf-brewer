@@ -108,7 +108,5 @@ public class Rect extends Instruction {
         }
         stream.addRect(ptX, ptY, ptW, ptH);
         stream.stroke();
-
-        //System.out.println("Rect: x=" + x + ", y=" + y + ", width=" + w + ", height=" + h);
     }
 }

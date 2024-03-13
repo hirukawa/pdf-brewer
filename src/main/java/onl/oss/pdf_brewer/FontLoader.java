@@ -22,10 +22,7 @@ public class FontLoader {
     public static final String FONT_FAMILY_SERIF = "serif";
     public static final String FONT_FAMILY_SANS_SERIF = "sans-serif";
 
-    private List<Map.Entry<NamingTable, TrueTypeFont>> fontList = new ArrayList<>();
-    private Map<String, TrueTypeFont> fontMap = new HashMap<>();
-
-    private FontNaming[] serif = new FontNaming[] {
+    private static final FontNaming[] DEFAULT_SERIF = new FontNaming[] {
             new FontNaming("Yu Mincho", FontSubFamily.REGULAR),
 
             new FontNaming("Noto Serif JP", FontSubFamily.REGULAR),
@@ -40,7 +37,7 @@ public class FontLoader {
             new FontNaming("Noto Serif", FontSubFamily.REGULAR)
     };
 
-    private FontNaming[] serifBold = new FontNaming[] {
+    private static final FontNaming[] DEFAULT_SERIF_BOLD = new FontNaming[] {
             new FontNaming("Yu Mincho", FontSubFamily.BOLD),
             new FontNaming("Yu Mincho Demibold"),
 
@@ -56,7 +53,7 @@ public class FontLoader {
             new FontNaming("Noto Serif", FontSubFamily.BOLD)
     };
 
-    private FontNaming[] sansSerif = new FontNaming[] {
+    private static final FontNaming[] DEFAULT_SANS_SERIF = new FontNaming[] {
             new FontNaming("Yu Gothic", FontSubFamily.REGULAR),
 
             new FontNaming("Noto Sans JP", FontSubFamily.REGULAR),
@@ -72,7 +69,7 @@ public class FontLoader {
             new FontNaming("Noto Sans", FontSubFamily.REGULAR)
     };
 
-    private FontNaming[] sansSerifBold = new FontNaming[] {
+    private static final FontNaming[] DEFAULT_SANS_SERIF_BOLD = new FontNaming[] {
             new FontNaming("Yu Gothic", FontSubFamily.BOLD),
 
             new FontNaming("Noto Sans JP", FontSubFamily.BOLD),
@@ -89,7 +86,19 @@ public class FontLoader {
     };
 
 
+    private List<Map.Entry<NamingTable, TrueTypeFont>> fontList = new ArrayList<>();
+    private Map<String, TrueTypeFont> fontMap = new HashMap<>();
+
+    private List<FontNaming> serif;
+    private List<FontNaming> serifBold;
+    private List<FontNaming> sansSerif;
+    private List<FontNaming> sansSerifBold;
+
     public FontLoader() {
+        this.serif = new ArrayList<>(Arrays.asList(DEFAULT_SERIF));
+        this.serifBold = new ArrayList<>(Arrays.asList(DEFAULT_SERIF_BOLD));
+        this.sansSerif = new ArrayList<>(Arrays.asList(DEFAULT_SANS_SERIF));
+        this.sansSerifBold = new ArrayList<>(Arrays.asList(DEFAULT_SANS_SERIF_BOLD));
     }
 
 
@@ -130,24 +139,36 @@ public class FontLoader {
         return loaded;
     }
 
+    public List<FontNaming> getSerif() {
+        return serif;
+    }
 
     public void setSerif(FontNaming... candidates) {
-        serif = candidates;
+        serif = new ArrayList<>(Arrays.asList(candidates));
     }
 
+    public List<FontNaming> getSerifBold() {
+        return serifBold;
+    }
 
     public void setSerifBold(FontNaming... candidates) {
-        serifBold = candidates;
+        serifBold = new ArrayList<>(Arrays.asList(candidates));
     }
 
+    public List<FontNaming> getSansSerif() {
+        return sansSerif;
+    }
 
     public void setSansSerif(FontNaming... candidates) {
-        sansSerif = candidates;
+        sansSerif = new ArrayList<>(Arrays.asList(candidates));
     }
 
+    public List<FontNaming> getSansSerifBold() {
+        return sansSerifBold;
+    }
 
     public void setSansSerifBold(FontNaming... candidates) {
-        sansSerifBold = candidates;
+        sansSerifBold = new ArrayList<>(Arrays.asList(candidates));
     }
 
     public List<TrueTypeFont> getFonts() {
@@ -183,22 +204,28 @@ public class FontLoader {
 
         if (family.equalsIgnoreCase(FONT_FAMILY_SERIF)) {
             if (serif != null && subFamily.equalsIgnoreCase(FontSubFamily.REGULAR)) {
-                fontNamings = Arrays.asList(serif);
+                fontNamings = serif;
             } else if (serifBold != null && subFamily.equalsIgnoreCase(FontSubFamily.BOLD)) {
-                fontNamings = Arrays.asList(serifBold);
+                fontNamings = serifBold;
             }
         } else if (family.equalsIgnoreCase(FONT_FAMILY_SANS_SERIF)) {
             if (sansSerif != null && subFamily.equalsIgnoreCase(FontSubFamily.REGULAR)) {
-                fontNamings = Arrays.asList(sansSerif);
+                fontNamings = sansSerif;
             } else if (sansSerifBold != null && subFamily.equalsIgnoreCase(FontSubFamily.BOLD)) {
-                fontNamings = Arrays.asList(sansSerifBold);
+                fontNamings = sansSerifBold;
             }
         }
 
         // ファミリー名が完全一致するフォントの候補リストからサブファミリー名が完全一致するフォントを探します。
         if (font == null) {
             for (FontNaming fontNaming : fontNamings) {
-                font = getExactMatchFont(getExactMatchFonts(fontNaming.getFamily()), fontNaming.getSubFamily());
+                List<Map.Entry<NamingTable, TrueTypeFont>> candidates = getExactMatchFonts(fontNaming.getFamily());
+                // サブファミリーが指定されていない場合は候補リストの先頭のフォントを返します。
+                if (fontNaming.getSubFamily().isBlank() && candidates.size() >= 1) {
+                    font = candidates.get(0).getValue();
+                    break;
+                }
+                font = getExactMatchFont(candidates, fontNaming.getSubFamily());
                 if (font != null) {
                     break;
                 }
@@ -208,7 +235,13 @@ public class FontLoader {
         // ファミリー名が完全一致するフォント候補のリストからサブファミリー名が部分一致するフォントを探します。
         if (font == null) {
             for (FontNaming fontNaming : fontNamings) {
-                font = getPartialMatchFont(getExactMatchFonts(fontNaming.getFamily()), fontNaming.getSubFamily());
+                List<Map.Entry<NamingTable, TrueTypeFont>> candidates = getExactMatchFonts(fontNaming.getFamily());
+                // サブファミリーが指定されていない場合は候補リストの先頭のフォントを返します。
+                if (fontNaming.getSubFamily().isBlank() && candidates.size() >= 1) {
+                    font = candidates.get(0).getValue();
+                    break;
+                }
+                font = getPartialMatchFont(candidates, fontNaming.getSubFamily());
                 if (font != null) {
                     break;
                 }
@@ -218,7 +251,13 @@ public class FontLoader {
         // ファミリー名が部分一致するフォント候補のリストからサブファミリー名が完全一致するフォントを探します。
         if (font == null) {
             for (FontNaming fontNaming : fontNamings) {
-                font = getExactMatchFont(getPartialMatchFonts(fontNaming.getFamily()), fontNaming.getSubFamily());
+                List<Map.Entry<NamingTable, TrueTypeFont>> candidates = getPartialMatchFonts(fontNaming.getFamily());
+                // サブファミリーが指定されていない場合は候補リストの先頭のフォントを返します。
+                if (fontNaming.getSubFamily().isBlank() && candidates.size() >= 1) {
+                    font = candidates.get(0).getValue();
+                    break;
+                }
+                font = getExactMatchFont(candidates, fontNaming.getSubFamily());
                 if (font != null) {
                     break;
                 }
@@ -228,7 +267,13 @@ public class FontLoader {
         // ファミリー名が部分一致するフォント候補のリストからサブファミリー名が部分一致するフォントを探します。
         if (font == null) {
             for (FontNaming fontNaming : fontNamings) {
-                font = getPartialMatchFont(getPartialMatchFonts(fontNaming.getFamily()), fontNaming.getSubFamily());
+                List<Map.Entry<NamingTable, TrueTypeFont>> candidates = getPartialMatchFonts(fontNaming.getFamily());
+                // サブファミリーが指定されていない場合は候補リストの先頭のフォントを返します。
+                if (fontNaming.getSubFamily().isBlank() && candidates.size() >= 1) {
+                    font = candidates.get(0).getValue();
+                    break;
+                }
+                font = getPartialMatchFont(candidates, fontNaming.getSubFamily());
                 if (font != null) {
                     break;
                 }
@@ -238,8 +283,9 @@ public class FontLoader {
         // ファミリー名が完全一致するフォント候補のリストから先頭のフォントを探します。（サブファミリー名は問いません）
         if (font == null) {
             for (FontNaming fontNaming : fontNamings) {
-                font = getPartialMatchFont(getExactMatchFonts(fontNaming.getFamily()), "");
-                if (font != null) {
+                List<Map.Entry<NamingTable, TrueTypeFont>> candidates = getExactMatchFonts(fontNaming.getFamily());
+                if (candidates.size() >= 1) {
+                    font = candidates.get(0).getValue();
                     break;
                 }
             }
@@ -248,8 +294,9 @@ public class FontLoader {
         // ファミリー名が部分一致するフォント候補のリストから先頭のフォントを探します。（サブファミリー名は問いません）
         if (font == null) {
             for (FontNaming fontNaming : fontNamings) {
-                font = getPartialMatchFont(getPartialMatchFonts(fontNaming.getFamily()), "");
-                if (font != null) {
+                List<Map.Entry<NamingTable, TrueTypeFont>> candidates = getPartialMatchFonts(fontNaming.getFamily());
+                if (candidates.size() >= 1) {
+                    font = candidates.get(0).getValue();
                     break;
                 }
             }
